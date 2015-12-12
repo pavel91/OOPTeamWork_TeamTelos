@@ -37,3 +37,6 @@
 /processorParam:TextureFormat=Color
 /build:overworld_bg.png
 
+#begin yeti.png
+/copy:yeti.png
+

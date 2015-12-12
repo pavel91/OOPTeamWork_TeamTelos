@@ -14,6 +14,7 @@ namespace IslandsQuest
         private Texture2D sprite;
         private Texture2D backgroundLevel1;
         private Vector2 location;
+        private Enemy enemy;
 
         public IslandsQuest()
         {
@@ -33,6 +34,8 @@ namespace IslandsQuest
             spriteBatch = new SpriteBatch(GraphicsDevice);
             sprite = this.Content.Load<Texture2D>("gb_walk");
             backgroundLevel1 = this.Content.Load<Texture2D>("overworld_bg");
+            Texture2D texture = Content.Load<Texture2D>("yeti");
+            enemy = new Enemy(texture, 6, 5);
 
             character = new Character(sprite, location);
         }
@@ -52,7 +55,7 @@ namespace IslandsQuest
 
             character.Update(gameTime, location);
             location = character.CharacterPosition;
-
+            enemy.Update();
             base.Update(gameTime);
         }
 
@@ -64,7 +67,7 @@ namespace IslandsQuest
 
             spriteBatch.Draw(backgroundLevel1, new Rectangle(0, 0, 800, 480), Color.White);
             character.Draw(spriteBatch, location);
-
+            enemy.Draw(spriteBatch);
             spriteBatch.End();
 
             base.Draw(gameTime);

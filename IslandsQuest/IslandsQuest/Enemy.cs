@@ -24,15 +24,15 @@ namespace IslandsQuest
             Columns = columns;
             currentFrame = 0;
             totalFrames = Rows * Columns;
-            XPosition = 0;
-            YPosition = 0;
+            XPosition = 900;
+            YPosition = 350;
         }
 
 
         public void Update()
         {
             currentFrame++;
-            XPosition += 2f;
+            XPosition -= 2f;
             if (currentFrame == totalFrames)
                 currentFrame = 0;
         }

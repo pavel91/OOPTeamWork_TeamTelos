@@ -40,3 +40,21 @@
 #begin yeti.png
 /copy:yeti.png
 
+#begin monster.png
+/copy:monster.png
+
+#begin AncientBeast.png
+/copy:AncientBeast.png
+
+#begin dinosour.jpg
+/copy:dinosour.jpg
+
+#begin Eagle_Walk.png
+/copy:Eagle_Walk.png
+
+#begin space_background.jpg
+/copy:space_background.jpg
+
+#begin dark_background.png
+/copy:dark_background.png
+

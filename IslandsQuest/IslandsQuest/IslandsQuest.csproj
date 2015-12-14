@@ -40,10 +40,12 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Enemy.cs" />
+    <Compile Include="Models\EntityModels\Bullet.cs" />
+    <Compile Include="Models\EntityModels\Enemy.cs" />
     <Compile Include="IslandsQuest.cs" />
     <Compile Include="Models\EntityModels\Character.cs" />
-    <Compile Include="Models\Enums\State.cs" />
+    <Compile Include="Models\Enums\BulletDirection.cs" />
+    <Compile Include="Models\Enums\HeroState.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

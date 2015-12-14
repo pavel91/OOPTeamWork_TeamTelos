@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace IslandsQuest
+namespace IslandsQuest.Models.EntityModels
 {
     public class Enemy
     {
@@ -22,7 +22,7 @@ namespace IslandsQuest
             Texture = texture;
             Rows = rows;
             Columns = columns;
-            currentFrame = 0;
+            currentFrame = 8;
             totalFrames = Rows * Columns;
             XPosition = 900;
             YPosition = 350;
@@ -32,9 +32,9 @@ namespace IslandsQuest
         public void Update()
         {
             currentFrame++;
-            XPosition -= 2f;
-            if (currentFrame == totalFrames)
-                currentFrame = 0;
+            XPosition -= 1.5f;
+            if (currentFrame == 16)
+                currentFrame = 8;
         }
 
         public void Draw(SpriteBatch spriteBatch)

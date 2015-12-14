@@ -16,7 +16,7 @@ namespace IslandsQuest
         SpriteBatch spriteBatch;
         TimeSpan enemySpawnTime;
         TimeSpan previousSpawnTime;
-        List<Enemy> enemies;
+        IList<Enemy> enemies;
         private Character character;
         private Texture2D sprite;
         private Texture2D bulletTexture;
@@ -82,6 +82,11 @@ namespace IslandsQuest
             {
                 bullet.Update(gameTime);
                 bullet.IntersectWithEnemies(enemies, this.character.Score);
+                if (bullet.newScore>this.character.Score)
+                {
+                    this.character.Score = bullet.newScore;
+                }
+                
                 if (bullet.isActive)
                 {
                     activeBullets.Add(bullet);
@@ -89,7 +94,7 @@ namespace IslandsQuest
             }
             character.Bullets = activeBullets;
 
-            //this.Window.Title = character.Bullets.Count.ToString();
+            this.Window.Title = enemies.Count.ToString();
 
             base.Update(gameTime);
         }

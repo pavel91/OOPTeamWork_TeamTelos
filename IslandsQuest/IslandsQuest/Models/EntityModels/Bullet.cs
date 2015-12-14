@@ -21,6 +21,7 @@ namespace IslandsQuest.Models.EntityModels
         private Texture2D texture;
         private BulletDirection direction;
         private int damage;
+        public int newScore;
 
         public Texture2D Texture { get { return this.texture; } set { this.texture = value; } }
         public Vector2 Location { get { return this.location; } set { this.location = value; } }
@@ -75,13 +76,14 @@ namespace IslandsQuest.Models.EntityModels
         {
             for (int i = enemies.Count - 1; i >= 0; i--)
             {
+                newScore = score;
                 if (this.Bounds.Intersects(enemies[i].Bounds))
                 {
                     enemies[i].Health -= this.damage;
                     if (enemies[i].Health <= 0)
                     {
                         enemies.RemoveAt(i);
-                        score += 20;
+                        newScore += 20;
                     }
                 }
             }

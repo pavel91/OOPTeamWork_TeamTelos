@@ -79,6 +79,7 @@ namespace IslandsQuest.Models.EntityModels
                 newScore = score;
                 if (this.Bounds.Intersects(enemies[i].Bounds))
                 {
+                    this.isActive = false;
                     enemies[i].Health -= this.damage;
                     if (enemies[i].Health <= 0)
                     {

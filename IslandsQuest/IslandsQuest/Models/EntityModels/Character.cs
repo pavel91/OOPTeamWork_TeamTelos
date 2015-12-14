@@ -124,7 +124,7 @@ namespace IslandsQuest.Models.EntityModels
                         bulletDirection = BulletDirection.Right;
                     }
 
-                    Bullet bullet = new Bullet(bulletTexture, characterPosition, 13f, 5, bulletDirection);
+                    Bullet bullet = new Bullet(bulletTexture, characterPosition, 13f, 25, bulletDirection);
 
                     bullets.Add(bullet);
                 }

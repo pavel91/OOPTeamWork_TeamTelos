@@ -11,15 +11,18 @@ namespace IslandsQuest.Models.EntityModels
 {
     class Character
     {
-        private Texture2D sprite;
+        private const int DefaultPlayerHealth = 100;
+
+        public Texture2D sprite;
         private Vector2 characterPosition;
         private KeyboardState keyboardState;
         private State characterState;
+        public int health;
 
         private int currentFrame;
         private int firstFrame;
         private int lastFrame;
-
+        public Rectangle Bounds { get; set; }
 
         private int timeSinceLastFrame = 0;
         private int millisecondPerFrame = 80;
@@ -28,26 +31,26 @@ namespace IslandsQuest.Models.EntityModels
         private int Columns = 6;
         private int Rows = 3;
 
-        bool jumping; 
+        bool jumping;
         float startY, jumpspeed = 0;
 
         public Vector2 CharacterPosition { get { return this.characterPosition; } }
 
-        public Character(Texture2D sprite,Vector2 location)
+        public Character(Texture2D sprite, Vector2 location)
         {
             this.sprite = sprite;
-            this.characterPosition=location;
-
+            this.characterPosition = location;
+            this.health = DefaultPlayerHealth;
         }
 
         public void Update(GameTime gameTime, Vector2 location)
         {
             keyboardState = Keyboard.GetState();
             characterPosition = location;
-            
+
             timeSinceLastFrame += gameTime.ElapsedGameTime.Milliseconds;
 
-            if (timeSinceLastFrame>millisecondPerFrame)
+            if (timeSinceLastFrame > millisecondPerFrame)
             {
                 if (keyboardState.IsKeyDown(Keys.Left))
                 {
@@ -63,7 +66,7 @@ namespace IslandsQuest.Models.EntityModels
                     currentFrame++;
                     characterPosition.X += 8;
                 }
-                else if (keyboardState.IsKeyUp(Keys.Right) && keyboardState.IsKeyUp(Keys.Left) && characterState==State.WalkingRight)
+                else if (keyboardState.IsKeyUp(Keys.Right) && keyboardState.IsKeyUp(Keys.Left) && characterState == State.WalkingRight)
                 {
                     characterState = State.StandingRight;
                     SetFrames(characterState);
@@ -95,7 +98,7 @@ namespace IslandsQuest.Models.EntityModels
                         jumpspeed = -24;//Give it upward thrust
                     }
                 }
-                
+
                 timeSinceLastFrame -= millisecondPerFrame;
 
                 if (currentFrame == lastFrame)
@@ -105,7 +108,7 @@ namespace IslandsQuest.Models.EntityModels
             }
         }
 
-        public void Draw(SpriteBatch spriteBatch,Vector2 location)
+        public void Draw(SpriteBatch spriteBatch, Vector2 location)
         {
             var width = sprite.Width / Columns;
             var height = sprite.Height / Rows;
@@ -113,9 +116,11 @@ namespace IslandsQuest.Models.EntityModels
             int column = currentFrame % Columns;
 
             var sourceRectangle = new Rectangle(width * column, height * row, width, height);
-            var destinationRectangle = new Rectangle((int)location.X, (int)location.Y, width, height);
+            //var sourceRectangle = new Rectangle((int)this.CharacterPosition.X + Bounds.X, (int)this.characterPosition.Y + Bounds.Y, Bounds.Width, Bounds.Height);
+            //var destinationRectangle = new Rectangle((int)location.X, (int)location.Y, width, height);
+            this.Bounds = new Rectangle((int)location.X, (int)location.Y, width, height);
 
-            spriteBatch.Draw(sprite, destinationRectangle, sourceRectangle, Color.White);
+            spriteBatch.Draw(sprite, this.Bounds, sourceRectangle, Color.White);
         }
 
         private void SetFrames(State state)
@@ -124,7 +129,7 @@ namespace IslandsQuest.Models.EntityModels
             {
                 firstFrame = 6;
                 lastFrame = 12;
-                if (currentFrame <=6 && currentFrame > 12)
+                if (currentFrame <= 6 && currentFrame > 12)
                 {
                     currentFrame = firstFrame;
                 }
@@ -133,17 +138,17 @@ namespace IslandsQuest.Models.EntityModels
             {
                 firstFrame = 0;
                 lastFrame = 6;
-                if (currentFrame> 6)
+                if (currentFrame > 6)
                 {
                     currentFrame = firstFrame;
                 }
             }
-            else if (state==State.StandingLeft)
+            else if (state == State.StandingLeft)
             {
                 firstFrame = 13;
                 lastFrame = 15;
             }
-            else if (state==State.StandingRight)
+            else if (state == State.StandingRight)
             {
                 firstFrame = 12;
                 lastFrame = 13;

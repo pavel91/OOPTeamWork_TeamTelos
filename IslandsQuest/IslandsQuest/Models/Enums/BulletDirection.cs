@@ -5,11 +5,9 @@ using System.Text;
 
 namespace IslandsQuest.Models.Enums
 {
-    public enum State
+    public enum BulletDirection
     {
-        StandingRight,
-        StandingLeft,
-        WalkingRight,
-        WalkingLeft
+        Right,
+        Left
     }
 }

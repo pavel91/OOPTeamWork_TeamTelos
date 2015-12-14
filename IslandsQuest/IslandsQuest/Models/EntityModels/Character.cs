@@ -7,12 +7,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Content;
+using IslandsQuest.Interfaces;
+using System.Collections;
+using IslandsQuest.Models.Abstracts;
 
 namespace IslandsQuest.Models.EntityModels
 {
-    class Character
+    public class Character : GameObject
     {
         private const int DefaultPlayerHealth = 100;
+        private const int DefaultPlayerScore = 0;
         public int health;
 
         private Texture2D sprite;
@@ -22,6 +26,7 @@ namespace IslandsQuest.Models.EntityModels
         private KeyboardState previousKeyboardState;
         private HeroState characterState;
         private ICollection<Bullet> bullets;
+        public int Score { get; set; }
 
         private int currentFrame;
         private int firstFrame;
@@ -49,6 +54,7 @@ namespace IslandsQuest.Models.EntityModels
             this.bullets = new List<Bullet>();
             this.bulletTexture = bulletTexture;
             this.health = DefaultPlayerHealth;
+            this.Score = DefaultPlayerScore;
         }
 
         public void Update(GameTime gameTime)
@@ -188,6 +194,23 @@ namespace IslandsQuest.Models.EntityModels
                     currentFrame = firstFrame;
                 }
             }
+        }
+
+        public override void IntersectWithEnemies(IList<Enemy> enemies, int score)
+        {
+            for (int i = enemies.Count - 1; i >= 0; i--)
+            {
+                if (this.Bounds.Intersects(enemies[i].Bounds))
+                {
+                    this.health -= enemies[i].Damage;
+                    enemies.RemoveAt(i);
+                }
+            }
+
+            //foreach (var bullet in this.bullets)
+            //{
+            //    bullet.IntersectWithEnemies(enemies);
+            //}
         }
     }
 }

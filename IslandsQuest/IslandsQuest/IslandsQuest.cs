@@ -66,9 +66,10 @@ namespace IslandsQuest
             }
 
             character.Update(gameTime);
+            character.IntersectWithEnemies(enemies, this.character.Score);
 
             //Check for collision and do damage
-            UpdateCollision(gameTime);
+            //UpdateCollision(gameTime);
 
             for (int i = 0; i < enemies.Count; i++)
             {
@@ -80,6 +81,7 @@ namespace IslandsQuest
             foreach (var bullet in character.Bullets)
             {
                 bullet.Update(gameTime);
+                bullet.IntersectWithEnemies(enemies, this.character.Score);
                 if (bullet.isActive)
                 {
                     activeBullets.Add(bullet);
@@ -102,6 +104,7 @@ namespace IslandsQuest
             spriteBatch.Draw(backgroundLevel1, new Rectangle(0, 0, 800, 480), Color.White);
 
             spriteBatch.DrawString(titleFont, string.Format("Health: {0}", this.character.health), new Vector2(5, 5), Color.White);
+            spriteBatch.DrawString(titleFont, string.Format("Score: {0}", this.character.Score), new Vector2(150, 5), Color.White);
 
             //Draw Hero
             character.Draw(spriteBatch);
@@ -148,19 +151,6 @@ namespace IslandsQuest
             foreach (var enemy in enemies)
             {
                 enemy.Update();
-            }
-        }
-
-        //The collision method
-        private void UpdateCollision(GameTime gameTime)
-        {
-            for (int i = enemies.Count - 1; i >= 0; i--)
-            {
-                if (this.character.Bounds.Intersects(enemies[i].Bounds))
-                {
-                    this.character.health -= enemies[i].Damage;
-                    enemies.RemoveAt(i);
-                }
             }
         }
     }

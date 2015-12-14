@@ -40,10 +40,13 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Interfaces\IAttack.cs" />
+    <Compile Include="Interfaces\IIntersect.cs" />
+    <Compile Include="Models\Abstracts\GameObject.cs" />
     <Compile Include="Models\EntityModels\Bullet.cs" />
-    <Compile Include="Models\EntityModels\Enemy.cs" />
     <Compile Include="IslandsQuest.cs" />
     <Compile Include="Models\EntityModels\Character.cs" />
+    <Compile Include="Models\EntityModels\Enemy.cs" />
     <Compile Include="Models\Enums\BulletDirection.cs" />
     <Compile Include="Models\Enums\HeroState.cs" />
     <Compile Include="Program.cs" />

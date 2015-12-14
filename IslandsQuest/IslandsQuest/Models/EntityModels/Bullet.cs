@@ -5,23 +5,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using IslandsQuest.Models.Enums;
+using IslandsQuest.Interfaces;
+using IslandsQuest.Models.Abstracts;
 
 namespace IslandsQuest.Models.EntityModels
 {
-    public class Bullet
+    public class Bullet : GameObject, IAttack
     {
+        private const int DefaultBulletDamage = 20;
+
         private float velocity;
-        private int damage;
+
         public bool isActive;
         private Vector2 location;
         private Texture2D texture;
         private BulletDirection direction;
+        private int damage;
 
         public Texture2D Texture { get { return this.texture; } set { this.texture = value; } }
         public Vector2 Location { get { return this.location; } set { this.location = value; } }
         public float Velocity { get { return this.velocity; } set { this.velocity = value; } }
         public int Damage { get { return this.damage; } set { this.damage = value; } }
         public BulletDirection Direction { get { return this.direction; } set { this.direction = value; } }
+
+        public Rectangle Bounds { get; set; }
 
         public Bullet(Texture2D bulletTexture, Vector2 location, float bulletSpeed, int bulletDamage, BulletDirection direction)
         {
@@ -35,7 +42,7 @@ namespace IslandsQuest.Models.EntityModels
 
         public void Update(GameTime gameTime)
         {
-            
+
             if (direction == BulletDirection.Right)
             {
                 location.X += velocity;
@@ -44,8 +51,8 @@ namespace IslandsQuest.Models.EntityModels
             {
                 location.X -= velocity;
             }
-            
-            if (location.X > 1000 || location.X < -100  )
+
+            if (location.X > 1000 || location.X < -100)
             {
                 isActive = false;
             }
@@ -53,13 +60,31 @@ namespace IslandsQuest.Models.EntityModels
 
         public void Draw(SpriteBatch spriteBatch)
         {
-                var width = texture.Width;
-                var height = texture.Height;
+            var width = texture.Width;
+            var height = texture.Height;
 
-                var sourceRectangle = new Rectangle(0, 0, width, height);
-                var destinationRectangle = new Rectangle((int)location.X, (int)location.Y, width, height);
+            var sourceRectangle = new Rectangle(0, 0, width, height);
+            var destinationRectangle = new Rectangle((int)location.X, (int)location.Y, width, height);
 
-                spriteBatch.Draw(texture, destinationRectangle, sourceRectangle, Color.White);
+            this.Bounds = new Rectangle((int)location.X, (int)location.Y, width, height);
+
+            spriteBatch.Draw(texture, destinationRectangle, sourceRectangle, Color.White);
+        }
+
+        public override void IntersectWithEnemies(IList<Enemy> enemies, int score)
+        {
+            for (int i = enemies.Count - 1; i >= 0; i--)
+            {
+                if (this.Bounds.Intersects(enemies[i].Bounds))
+                {
+                    enemies[i].Health -= this.damage;
+                    if (enemies[i].Health <= 0)
+                    {
+                        enemies.RemoveAt(i);
+                        score += 20;
+                    }
+                }
+            }
         }
     }
 }

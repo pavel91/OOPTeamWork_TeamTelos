@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using IslandsQuest.Models.Core;
+using System.Linq;
 using IslandsQuest.Models.EntityModels;
 using IslandsQuest.Models.Enums;
 using Microsoft.Xna.Framework;
@@ -47,7 +49,7 @@ namespace IslandsQuest
             enemies = new List<Enemy>();
             previousSpawnTime = TimeSpan.Zero;
             enemySpawnTime = TimeSpan.FromSeconds(6.0f);
-            
+
             base.Initialize();
         }
 
@@ -58,11 +60,14 @@ namespace IslandsQuest
             backgroundLevel0 = this.Content.Load<Texture2D>("level0_background");
             button = this.Content.Load<Texture2D>("buttons_background");
             backgroundLevel1 = this.Content.Load<Texture2D>("space_background");
+
             titleFont = Content.Load<SpriteFont>("title");
             bulletTexture = this.Content.Load<Texture2D>("Fireball");
 
             character = new Character(sprite, location, bulletTexture);
+
             listener = new EventListener(character, this.level);
+
         }
 
         protected override void UnloadContent()
@@ -105,7 +110,6 @@ namespace IslandsQuest
                 }
             }
             character.Bullets = activeBullets;
-            
             this.Window.Title = enemies.Count.ToString();
 
             base.Update(gameTime);
@@ -116,6 +120,7 @@ namespace IslandsQuest
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             spriteBatch.Begin();
+
             if (listener.GameLevel == Level.GameOver)
             {
                 this.DrawGameOver();
@@ -179,6 +184,7 @@ namespace IslandsQuest
                         }
                     }
                     //bullet.Draw(spriteBatch);
+
                 }
             }
             spriteBatch.End();

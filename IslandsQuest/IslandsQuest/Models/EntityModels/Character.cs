@@ -10,6 +10,7 @@ namespace IslandsQuest.Models.EntityModels
 {
     public delegate void GameOverEventHandler(object sender, EventArgs e);
 
+
     public class Character : GameObject
     {
         private const int DefaultPlayerHealth = 100;
@@ -44,9 +45,6 @@ namespace IslandsQuest.Models.EntityModels
         public ICollection<Bullet> Bullets { get { return this.bullets; } set { this.bullets = value; } }
         public Vector2 CharacterPosition { get { return this.characterPosition; } }
 
-
-        // Invoke the Changed event; called whenever list changes
-        
         public Character(Texture2D sprite, Vector2 location, Texture2D bulletTexture)
         {
             this.sprite = sprite;
@@ -152,6 +150,7 @@ namespace IslandsQuest.Models.EntityModels
             //var destinationRectangle = new Rectangle((int)location.X, (int)location.Y, width, height);
             this.Bounds = new Rectangle((int)characterPosition.X, (int)characterPosition.Y, width, height);
 
+
             if (characterState == HeroState.StandingLeft)
             {
                 var sourceRectangle = new Rectangle(width * 0, height * 0, width, height);
@@ -205,10 +204,12 @@ namespace IslandsQuest.Models.EntityModels
                     this.health -= enemies[i].Damage;
                     enemies.RemoveAt(i);
                 }
+
                 if (this.health <100)
                 {
                     OnPointChanged(EventArgs.Empty);
                 }
+
             }
 
             //foreach (var bullet in this.bullets)

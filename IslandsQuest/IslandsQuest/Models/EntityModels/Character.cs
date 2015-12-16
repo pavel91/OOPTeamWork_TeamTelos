@@ -1,85 +1,100 @@
-﻿using IslandsQuest.Models.Enums;
+﻿using System;
+using System.Collections.Generic;
+using IslandsQuest.Models.Abstracts;
+using IslandsQuest.Models.Enums;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace IslandsQuest.Models.EntityModels
 {
-    class Character
+    public delegate void GameOverEventHandler(object sender, EventArgs e);
+
+    public class Character : GameObject
     {
+        private const int DefaultPlayerHealth = 100;
+        private const int DefaultPlayerScore = 0;
+        public int health;
+
         private Texture2D sprite;
+        private Texture2D bulletTexture;
         private Vector2 characterPosition;
         private KeyboardState keyboardState;
-        private State characterState;
+        private KeyboardState previousKeyboardState;
+        private HeroState characterState;
+        private ICollection<Bullet> bullets;
+        public int Score { get; set; }
 
         private int currentFrame;
         private int firstFrame;
         private int lastFrame;
 
+        public Rectangle Bounds { get; set; }
 
         private int timeSinceLastFrame = 0;
         private int millisecondPerFrame = 80;
 
         //set-vat se ruchno
-        private int Columns = 6;
-        private int Rows = 3;
+        private int Columns = 5;
+        private int Rows = 4;
 
-        bool jumping; 
+        bool jumping;
         float startY, jumpspeed = 0;
 
+        public ICollection<Bullet> Bullets { get { return this.bullets; } set { this.bullets = value; } }
         public Vector2 CharacterPosition { get { return this.characterPosition; } }
 
-        public Character(Texture2D sprite,Vector2 location)
+
+        // Invoke the Changed event; called whenever list changes
+        
+        public Character(Texture2D sprite, Vector2 location, Texture2D bulletTexture)
         {
             this.sprite = sprite;
-            this.characterPosition=location;
-
+            this.characterPosition = location;
+            this.bullets = new List<Bullet>();
+            this.bulletTexture = bulletTexture;
+            this.health = DefaultPlayerHealth;
+            this.Score = DefaultPlayerScore;
         }
 
-        public void Update(GameTime gameTime, Vector2 location)
+        public void Update(GameTime gameTime)
         {
             keyboardState = Keyboard.GetState();
-            characterPosition = location;
-            
+
             timeSinceLastFrame += gameTime.ElapsedGameTime.Milliseconds;
 
-            if (timeSinceLastFrame>millisecondPerFrame)
+            if (timeSinceLastFrame > millisecondPerFrame)
             {
+                //Moveing Logic
                 if (keyboardState.IsKeyDown(Keys.Left))
                 {
-                    characterState = State.WalkingLeft;
+                    characterState = HeroState.WalkingLeft;
                     SetFrames(characterState);
                     currentFrame++;
                     characterPosition.X -= 8;
                 }
                 else if (keyboardState.IsKeyDown(Keys.Right))
                 {
-                    characterState = State.WalkingRight;
+                    characterState = HeroState.WalkingRight;
                     SetFrames(characterState);
                     currentFrame++;
                     characterPosition.X += 8;
                 }
-                else if (keyboardState.IsKeyUp(Keys.Right) && keyboardState.IsKeyUp(Keys.Left) && characterState==State.WalkingRight)
+                else if (keyboardState.IsKeyUp(Keys.Right) && keyboardState.IsKeyUp(Keys.Left) && characterState == HeroState.WalkingRight)
                 {
-                    characterState = State.StandingRight;
-                    SetFrames(characterState);
+                    characterState = HeroState.StandingRight;
                 }
-                else if (keyboardState.IsKeyUp(Keys.Right) && keyboardState.IsKeyUp(Keys.Left) && characterState == State.WalkingLeft)
+                else if (keyboardState.IsKeyUp(Keys.Right) && keyboardState.IsKeyUp(Keys.Left) && characterState == HeroState.WalkingLeft)
                 {
-                    characterState = State.StandingLeft;
-                    SetFrames(characterState);
+                    characterState = HeroState.StandingLeft;
                 }
 
                 //Jumping logic
                 if (jumping)
                 {
-                    startY = 260;
+                    startY = 330;
                     characterPosition.Y += jumpspeed;//Making it go up
-                    jumpspeed += 3;//Some math (explained later)
+                    jumpspeed += 5;
                     if (characterPosition.Y >= startY)
                     //If it's farther than ground
                     {
@@ -92,10 +107,29 @@ namespace IslandsQuest.Models.EntityModels
                     if (keyboardState.IsKeyDown(Keys.Space))
                     {
                         jumping = true;
-                        jumpspeed = -24;//Give it upward thrust
+                        jumpspeed = -34;//Give it upward thrust
                     }
                 }
-                
+
+                //Shooting logic
+                if (keyboardState.IsKeyDown(Keys.C) && previousKeyboardState.IsKeyUp(Keys.C))
+                {
+                    BulletDirection bulletDirection;
+                    if (characterState == HeroState.StandingLeft || characterState == HeroState.WalkingLeft)
+                    {
+                        bulletDirection = BulletDirection.Left;
+                    }
+                    else
+                    {
+                        bulletDirection = BulletDirection.Right;
+                    }
+
+                    Bullet bullet = new Bullet(bulletTexture, characterPosition, 13f, 25, bulletDirection);
+
+                    bullets.Add(bullet);
+                }
+
+                previousKeyboardState = keyboardState;
                 timeSinceLastFrame -= millisecondPerFrame;
 
                 if (currentFrame == lastFrame)
@@ -105,49 +139,99 @@ namespace IslandsQuest.Models.EntityModels
             }
         }
 
-        public void Draw(SpriteBatch spriteBatch,Vector2 location)
+
+        public void Draw(SpriteBatch spriteBatch)
         {
             var width = sprite.Width / Columns;
             var height = sprite.Height / Rows;
             int row = (int)((float)currentFrame / Columns);
             int column = currentFrame % Columns;
 
-            var sourceRectangle = new Rectangle(width * column, height * row, width, height);
-            var destinationRectangle = new Rectangle((int)location.X, (int)location.Y, width, height);
+            //var sourceRectangle = new Rectangle(width * column, height * row, width, height);
+            //var sourceRectangle = new Rectangle((int)this.CharacterPosition.X + Bounds.X, (int)this.characterPosition.Y + Bounds.Y, Bounds.Width, Bounds.Height);
+            //var destinationRectangle = new Rectangle((int)location.X, (int)location.Y, width, height);
+            this.Bounds = new Rectangle((int)characterPosition.X, (int)characterPosition.Y, width, height);
 
-            spriteBatch.Draw(sprite, destinationRectangle, sourceRectangle, Color.White);
+            if (characterState == HeroState.StandingLeft)
+            {
+                var sourceRectangle = new Rectangle(width * 0, height * 0, width, height);
+                var destinationRectangle = new Rectangle((int)characterPosition.X, (int)characterPosition.Y, width, height);
+
+                spriteBatch.Draw(sprite, destinationRectangle, sourceRectangle, Color.White);
+            }
+            else if (characterState == HeroState.StandingRight)
+            {
+                var sourceRectangle = new Rectangle(width * 4, height * 1, width, height);
+                var destinationRectangle = new Rectangle((int)characterPosition.X, (int)characterPosition.Y, width, height);
+
+                spriteBatch.Draw(sprite, destinationRectangle, sourceRectangle, Color.White);
+            }
+            else
+            {
+                var sourceRectangle = new Rectangle(width * column, height * row, width, height);
+                var destinationRectangle = new Rectangle((int)characterPosition.X, (int)characterPosition.Y, width, height);
+                spriteBatch.Draw(sprite, destinationRectangle, sourceRectangle, Color.White);
+            }
         }
 
-        private void SetFrames(State state)
+        private void SetFrames(HeroState state)
         {
-            if (state == State.WalkingLeft)
+            if (state == HeroState.WalkingRight)
             {
-                firstFrame = 6;
-                lastFrame = 12;
-                if (currentFrame <=6 && currentFrame > 12)
+                firstFrame = 5;
+                lastFrame = 10;
+                if (currentFrame <= 5 && currentFrame > 10)
                 {
                     currentFrame = firstFrame;
                 }
             }
-            else if (state == State.WalkingRight)
+            else if (state == HeroState.WalkingLeft)
             {
                 firstFrame = 0;
-                lastFrame = 6;
-                if (currentFrame> 6)
+                lastFrame = 5;
+                if (currentFrame > 5)
                 {
                     currentFrame = firstFrame;
                 }
             }
-            else if (state==State.StandingLeft)
-            {
-                firstFrame = 13;
-                lastFrame = 15;
-            }
-            else if (state==State.StandingRight)
-            {
-                firstFrame = 12;
-                lastFrame = 13;
-            }
         }
+
+        public override void IntersectWithEnemies(IList<Enemy> enemies, int score)
+        {
+            for (int i = enemies.Count - 1; i >= 0; i--)
+            {
+                if (this.Bounds.Intersects(enemies[i].Bounds))
+                {
+                    this.health -= enemies[i].Damage;
+                    enemies.RemoveAt(i);
+                }
+                if (this.health <100)
+                {
+                    OnPointChanged(EventArgs.Empty);
+                }
+            }
+
+            //foreach (var bullet in this.bullets)
+            //{
+            //    bullet.IntersectWithEnemies(enemies);
+            //}
+        }
+
+         
+        public event GameOverEventHandler PointChanged;
+
+        protected virtual void OnPointChanged(EventArgs e)
+        {
+            if (PointChanged != null)
+                PointChanged(this, e);
+        }
+
+        //public void OnPointChanged()
+        //{
+        //    if (PointChanged != null)
+        //    {
+        //        PointChanged(this, EventArgs.Empty);
+        //    }
+        //}
     }
 }

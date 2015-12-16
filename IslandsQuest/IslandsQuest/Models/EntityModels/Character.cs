@@ -18,7 +18,7 @@ namespace IslandsQuest.Models.EntityModels
         private const int DefaultPlayerScore = 0;
 
         public int health;
-        public int keys;
+        public int gold;
         private Texture2D sprite;
         private Texture2D bulletTexture;
         private Vector2 characterPosition;
@@ -109,7 +109,7 @@ namespace IslandsQuest.Models.EntityModels
                 }
                 else
                 {
-                    if (keyboardState.IsKeyDown(Keys.Up))
+                    if (keyboardState.IsKeyDown(Keys.Space))
                     {
                         jumping = true;
                         jumpspeed = -34;//Give it upward thrust
@@ -117,7 +117,7 @@ namespace IslandsQuest.Models.EntityModels
                 }
 
                 //Shooting logic
-                if (keyboardState.IsKeyDown(Keys.Space) && previousKeyboardState.IsKeyUp(Keys.Space))
+                if (keyboardState.IsKeyDown(Keys.X) && previousKeyboardState.IsKeyUp(Keys.X))
                 {
                     BulletDirection bulletDirection;
                     if (characterState == HeroState.StandingLeft || characterState == HeroState.WalkingLeft)
@@ -243,12 +243,11 @@ namespace IslandsQuest.Models.EntityModels
             {
                 if (this.Bounds.Intersects(oneGold.Bounds))
                 {
-                    this.keys += 1;
+                    this.gold += 1;
                     oneGold.IsActive = false;
                 }
             }
         }
-
          
         public event GameOverEventHandler PointChanged;
 

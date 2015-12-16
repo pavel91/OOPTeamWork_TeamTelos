@@ -116,7 +116,7 @@ namespace IslandsQuest
             //UpdateCollision(gameTime);
             for (int i = 0; i < enemies.Count; i++)
             {
-                enemies[i].Update();
+                enemies[i].Update(gameTime);
             }
             UpdateEnemies(gameTime);
             
@@ -209,6 +209,9 @@ namespace IslandsQuest
                     spriteBatch.DrawString(titleFont, string.Format("Score: {0}", this.character.Score),
                         new Vector2(150, 5),
                         Color.White);
+                    spriteBatch.DrawString(titleFont, string.Format("Gold: {0}", this.character.gold),
+                        new Vector2(270, 5),
+                        Color.White);
 
                     //Draw Hero
                     character.Draw(spriteBatch);
@@ -260,9 +263,9 @@ namespace IslandsQuest
             if (gameTime.TotalGameTime - previousSpawnTime > enemySpawnTime)
             {
                 previousSpawnTime = gameTime.TotalGameTime;
-                Texture2D texture = Content.Load<Texture2D>("monster");
+                Texture2D texture = Content.Load<Texture2D>("skeleton");
 
-                enemy = new Enemy(texture, 2, 8);
+                enemy = new Enemy(texture, 8, 9);
 
                 enemies.Add(enemy);
             }

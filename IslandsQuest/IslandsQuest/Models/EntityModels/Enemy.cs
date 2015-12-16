@@ -20,6 +20,9 @@ namespace IslandsQuest.Models.EntityModels
         public float XPosition { get; set; }
         public float YPosition { get; set; }
 
+        private int timeSinceLastFrame = 0;
+        private int millisecondPerFrame = 50;
+
         //not dissappearing logic
         public bool walkingLeft = true;
         public bool hasMadeDamage = false;
@@ -36,39 +39,52 @@ namespace IslandsQuest.Models.EntityModels
             Texture = texture;
             Rows = rows;
             Columns = columns;
-            currentFrame = 8;
+            currentFrame = 0;
             totalFrames = Rows * Columns;
             XPosition = 900;
-            YPosition = 350;
+            YPosition = 330;
             this.Health = DefaultEnemyHealth;
             this.Damage = DefaultEnemyDamage;
             this.IsAlive = true;
         }
 
-        public void Update()
+        public void Update(GameTime gameTime)
         {
-            //not dissappearing logic
-            if (XPosition<1)
+            timeSinceLastFrame += gameTime.ElapsedGameTime.Milliseconds;
+            if (timeSinceLastFrame > millisecondPerFrame)
             {
-                walkingLeft = false;
-            }
-            if (XPosition>800)
-            {
-                walkingLeft = true;
-            }
-            if (walkingLeft)
-            {
-                XPosition -= 1.5f;
-            }
-            else
-            {
-                XPosition += 1.5f;
-            }
 
-            currentFrame++;
+                //not dissappearing logic
+                if (XPosition < 1)
+                {
+                    walkingLeft = false;
+                }
+                if (XPosition > 800)
+                {
+                    walkingLeft = true;
+                }
 
-            if (currentFrame == 16)
-                currentFrame = 8;
+                if (walkingLeft)
+                {
+                    if (currentFrame < 18 || currentFrame > 23)
+                    {
+                        currentFrame = 19;
+                    }
+                    XPosition -= 2.5f;
+                }
+                else
+                {
+                    if (currentFrame < 55 || currentFrame > 60)
+                    {
+                        currentFrame = 56;
+                    }
+                    XPosition += 2.5f;
+                }
+
+                currentFrame++;
+                timeSinceLastFrame -= millisecondPerFrame;
+            }
+            
         }
 
         public void Draw(SpriteBatch spriteBatch)

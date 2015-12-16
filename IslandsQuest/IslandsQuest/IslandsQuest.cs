@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using IslandsQuest.Models.Core;
 using System.Linq;
 using IslandsQuest.Models.EntityModels;
+using IslandsQuest.Models.Enums;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using IslandsQuest.Models.Enums;
 using IslandsQuest.Models.EntityModels.Items;
 
 namespace IslandsQuest
@@ -15,7 +16,7 @@ namespace IslandsQuest
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-        
+
         TimeSpan enemySpawnTime;
         TimeSpan giftSpawnTime;
         TimeSpan goldSpawnTime;
@@ -31,6 +32,7 @@ namespace IslandsQuest
         private Character character;
         private Texture2D sprite;
         private Texture2D bulletTexture;
+        private Texture2D backgroundLevel0;
         private Texture2D backgroundLevel1;
         private Vector2 location;
         
@@ -39,6 +41,15 @@ namespace IslandsQuest
         private Gold oneGold;
         
         private SpriteFont titleFont;
+        private Level level;
+
+        private Rectangle startArea = new Rectangle(50, 20, 160, 90);
+        private Rectangle gameArea = new Rectangle(230, 20, 160, 90);
+        private Rectangle rulesArea = new Rectangle(410, 20, 160, 90);
+        private Rectangle creditsArea = new Rectangle(590, 20, 160, 90);
+        private Texture2D button;
+
+        private EventListener listener;
 
         public IslandsQuest()
         {
@@ -48,6 +59,7 @@ namespace IslandsQuest
 
         protected override void Initialize()
         {
+            this.level = Level.Initial;
             location = new Vector2(0, 330);
             enemies = new List<Enemy>();
             potions = new List<Potion>();
@@ -61,7 +73,7 @@ namespace IslandsQuest
             //da se iznesat
             giftSpawnTime = TimeSpan.FromSeconds(5.0f);
             goldSpawnTime = TimeSpan.FromSeconds(8.0f);
-            
+
             base.Initialize();
         }
 
@@ -69,12 +81,17 @@ namespace IslandsQuest
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
             sprite = this.Content.Load<Texture2D>("transparentElf");
+            backgroundLevel0 = this.Content.Load<Texture2D>("level0_background");
+            button = this.Content.Load<Texture2D>("buttons_background");
             backgroundLevel1 = this.Content.Load<Texture2D>("space_background");
 
             titleFont = Content.Load<SpriteFont>("title");
             bulletTexture = this.Content.Load<Texture2D>("Fireball");
 
             character = new Character(sprite, location, bulletTexture);
+
+            listener = new EventListener(character, this.level);
+
         }
 
         protected override void UnloadContent()
@@ -88,9 +105,10 @@ namespace IslandsQuest
             {
                 Exit();
             }
-
+            DetectClick();
             character.Update(gameTime);
             character.IntersectWithEnemies(enemies, this.character.Score);
+
             character.IntersectWithPotions(potions, this.character.health);
             character.IntersectWithGold(gold);
 
@@ -143,7 +161,7 @@ namespace IslandsQuest
             }
             character.Bullets = activeBullets;
 
-            this.Window.Title = character.keys.ToString();
+            //this.Window.Title = character.keys.ToString();
 
             base.Update(gameTime);
         }
@@ -154,26 +172,70 @@ namespace IslandsQuest
 
             spriteBatch.Begin();
 
-            //Draw background
-            spriteBatch.Draw(backgroundLevel1, new Rectangle(0, 0, 800, 480), Color.White);
-
-            spriteBatch.DrawString(titleFont, string.Format("Health: {0}", this.character.health), new Vector2(5, 5), Color.White);
-            spriteBatch.DrawString(titleFont, string.Format("Score: {0}", this.character.Score), new Vector2(150, 5), Color.White);
-            spriteBatch.DrawString(titleFont, string.Format("Gold: {0}", this.character.keys), new Vector2(275, 5), Color.White);
-
-            //Draw Hero
-            character.Draw(spriteBatch);
-
-            //Draw Enemies
-            for (int i = 0; i < enemies.Count; i++)
+            if (listener.GameLevel == Level.GameOver)
             {
-                if (enemies[i].IsAlive)
-                {
-                    enemies[i].Draw(spriteBatch);
-                }
+                this.DrawGameOver();
             }
+            else
+            {
+                if (level == Level.Initial)
+                {
+                    this.DrawInitialBackground();
+                }
+                if (level == Level.Game)
+                {
+                    this.DrawInitialBackground();
+                    this.DrawGame();
+                }
+                if (level == Level.Credits)
+                {
+                    this.DrawInitialBackground();
+                    this.DrawCredits();
+                }
+                if (level == Level.Rules)
+                {
+                    this.DrawInitialBackground();
+                    this.DrawRules();
+                }
 
-            //draw potions
+                if (level == Level.First)
+                {
+                    //Draw background
+                    spriteBatch.Draw(backgroundLevel1, new Rectangle(0, 0, 800, 480), Color.White);
+
+                    spriteBatch.DrawString(titleFont, string.Format("Health: {0}", this.character.health),
+                        new Vector2(5, 5),
+                        Color.White);
+                    spriteBatch.DrawString(titleFont, string.Format("Score: {0}", this.character.Score),
+                        new Vector2(150, 5),
+                        Color.White);
+
+                    //Draw Hero
+                    character.Draw(spriteBatch);
+
+                    //Draw Enemies
+                    for (int i = 0; i < enemies.Count; i++)
+                    {
+                        if (enemies[i].IsAlive)
+                        {
+                            enemies[i].Draw(spriteBatch);
+                        }
+                    }
+
+                    //Draw bullets
+                    foreach (var bullet in character.Bullets)
+                    {
+                        if (bullet.isActive)
+                        {
+                            bullet.Draw(spriteBatch);
+                        }
+                        else
+                        {
+                            character.Bullets.Remove(bullet);
+                        }
+                    }
+
+                    //draw potions
             foreach (var item in potions)
             {
                 item.Draw(spriteBatch);
@@ -184,17 +246,8 @@ namespace IslandsQuest
             {
                 item.Draw(spriteBatch);
             }
+                    //bullet.Draw(spriteBatch);
 
-            //Draw bullets
-            foreach (var bullet in character.Bullets)
-            {
-                if (bullet.isActive)
-                {
-                    bullet.Draw(spriteBatch);
-                }
-                else
-                {
-                    character.Bullets.Remove(bullet);
                 }
             }
             spriteBatch.End();
@@ -235,5 +288,84 @@ namespace IslandsQuest
             }
 
         }
+
+        private void DetectClick()
+        {
+            MouseInput.LastMouseState = MouseInput.MouseState;
+            MouseInput.MouseState = Mouse.GetState();
+            Point mousePos = new Point(MouseInput.getMouseX(), MouseInput.getMouseY());
+            if (MouseInput.LastMouseState.LeftButton == ButtonState.Released && 
+                MouseInput.MouseState.LeftButton == ButtonState.Pressed &&
+                startArea.Contains(mousePos))
+            {
+                level= Level.First;
+            }
+            if (MouseInput.LastMouseState.LeftButton == ButtonState.Released &&
+                MouseInput.MouseState.LeftButton == ButtonState.Pressed &&
+                creditsArea.Contains(mousePos))
+            {
+                level=Level.Credits;
+            }
+            if (MouseInput.LastMouseState.LeftButton == ButtonState.Released &&
+                MouseInput.MouseState.LeftButton == ButtonState.Pressed &&
+                rulesArea.Contains(mousePos))
+            {
+                level = Level.Rules;
+            }
+            if (MouseInput.LastMouseState.LeftButton == ButtonState.Released &&
+                MouseInput.MouseState.LeftButton == ButtonState.Pressed &&
+                gameArea.Contains(mousePos))
+            {
+                level = Level.Game;
+            }
+        }
+
+        private void DrawInitialBackground()
+        {
+            this.IsMouseVisible = true;
+            spriteBatch.Draw(backgroundLevel0, new Rectangle(0, 0, 800, 480), Color.White);
+            spriteBatch.Draw(button, startArea, Color.White);
+            spriteBatch.Draw(button, gameArea, Color.White);
+            spriteBatch.Draw(button, rulesArea, Color.White);
+            spriteBatch.Draw(button, creditsArea, Color.White);
+            spriteBatch.DrawString(titleFont, "P L A Y", new Vector2(90, 50), Color.Blue);
+            spriteBatch.DrawString(titleFont, "G A M E", new Vector2(265, 50), Color.Blue);
+            spriteBatch.DrawString(titleFont, "R U L E S", new Vector2(440, 50), Color.Blue);
+            spriteBatch.DrawString(titleFont, "C R E D I T S", new Vector2(599, 50), Color.Blue);
+            spriteBatch.DrawString(titleFont, "M  O  N  S  T  E  R    Q  U  E  S  T", new Vector2(220, 440), Color.Blue);
+        }
+
+        private void DrawCredits()
+        {
+            spriteBatch.DrawString(titleFont, "A N T O N   V E L I K O V", new Vector2(50, 150), Color.Blue);
+            spriteBatch.DrawString(titleFont, "P A V E L   S H A L E V", new Vector2(50, 210), Color.Blue);
+            spriteBatch.DrawString(titleFont, "P L A M E N A   M I T E V A", new Vector2(50, 270), Color.Blue);
+        }
+
+        private void DrawRules()
+        {
+            spriteBatch.DrawString(titleFont, "Press RIGHT ARROW to move right", new Vector2(50, 150), Color.Blue);
+            spriteBatch.DrawString(titleFont, "Press LEFT ARROW to move left", new Vector2(50, 210), Color.Blue);
+            spriteBatch.DrawString(titleFont, "Press UP ARROW to jump", new Vector2(50, 270), Color.Blue);
+            spriteBatch.DrawString(titleFont, "Press SPACE to shoot", new Vector2(50, 330), Color.Blue);
+        }
+
+        private void DrawGame()
+        {
+            spriteBatch.DrawString(titleFont, "From the beginning of time, mankind has been riveted by accounts of mysterious", new Vector2(30, 120), Color.Blue);
+            spriteBatch.DrawString(titleFont, "creatures, from mega hogs to vampires and giant spiders.", new Vector2(30, 150), Color.Blue);
+        }
+
+        private void DrawGameOver()
+        {
+            spriteBatch.Draw(backgroundLevel0, new Rectangle(0, 0, 800, 480), Color.White);
+            spriteBatch.DrawString(titleFont, "G  A  M  E   O  V  E  R", new Vector2(270, 80), Color.Blue);
+            spriteBatch.DrawString(titleFont, "M  O  N  S  T  E  R    Q  U  E  S  T", new Vector2(220, 440), Color.Blue);
+        }
+
+        //public void HandlePointChanged(object sender, EventArgs eventArgs)
+        //{
+        //    level=0;
+        //}
     }
 }

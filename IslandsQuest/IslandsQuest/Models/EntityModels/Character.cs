@@ -1,19 +1,17 @@
-﻿using IslandsQuest.Models.Enums;
+﻿using System;
+using System.Collections.Generic;
+using IslandsQuest.Models.Abstracts;
+using IslandsQuest.Models.Enums;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.Xna.Framework.Content;
-using IslandsQuest.Interfaces;
-using System.Collections;
-using IslandsQuest.Models.Abstracts;
 using IslandsQuest.Models.EntityModels.Items;
 
 namespace IslandsQuest.Models.EntityModels
 {
+    public delegate void GameOverEventHandler(object sender, EventArgs e);
+
+
     public class Character : GameObject
     {
         private const int DefaultPlayerHealth = 100;
@@ -158,6 +156,7 @@ namespace IslandsQuest.Models.EntityModels
                                             width-2*(int)boundOffset.X,
                                             height-2*(int)boundOffset.Y);
 
+
             if (characterState == HeroState.StandingLeft)
             {
                 var sourceRectangle = new Rectangle(width * 0, height * 0, width, height);
@@ -216,6 +215,12 @@ namespace IslandsQuest.Models.EntityModels
                 {
                     enemies[i].hasMadeDamage = false;
                 }
+
+                if (this.health < 0)
+                {
+                    OnPointChanged(EventArgs.Empty);
+                }
+
             }
         }
 
@@ -228,6 +233,7 @@ namespace IslandsQuest.Models.EntityModels
                     this.health += potion.HealthPoints;
                     potion.IsActive = false;
                 }
+
             }
         }
 
@@ -242,5 +248,22 @@ namespace IslandsQuest.Models.EntityModels
                 }
             }
         }
+
+         
+        public event GameOverEventHandler PointChanged;
+
+        protected virtual void OnPointChanged(EventArgs e)
+        {
+            if (PointChanged != null)
+                PointChanged(this, e);
+        }
+
+        //public void OnPointChanged()
+        //{
+        //    if (PointChanged != null)
+        //    {
+        //        PointChanged(this, EventArgs.Empty);
+        //    }
+        //}
     }
 }

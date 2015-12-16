@@ -1,4 +1,5 @@
 ﻿using IslandsQuest.Models.EntityModels;
+using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 
 namespace IslandsQuest.Interfaces

@@ -12,8 +12,6 @@ namespace IslandsQuest.Models.EntityModels
 {
     public class Bullet : GameObject, IAttack
     {
-        private const int DefaultBulletDamage = 20;
-
         private float velocity;
 
         public bool isActive;
@@ -53,7 +51,7 @@ namespace IslandsQuest.Models.EntityModels
                 location.X -= velocity;
             }
 
-            if (location.X > 1000 || location.X < -100)
+            if (location.X > 700 || location.X < -5)
             {
                 isActive = false;
             }

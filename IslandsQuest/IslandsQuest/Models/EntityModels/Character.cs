@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework.Content;
 using IslandsQuest.Interfaces;
 using System.Collections;
 using IslandsQuest.Models.Abstracts;
+using IslandsQuest.Models.EntityModels.Items;
 
 namespace IslandsQuest.Models.EntityModels
 {
@@ -17,8 +18,9 @@ namespace IslandsQuest.Models.EntityModels
     {
         private const int DefaultPlayerHealth = 100;
         private const int DefaultPlayerScore = 0;
-        public int health;
 
+        public int health;
+        public int keys;
         private Texture2D sprite;
         private Texture2D bulletTexture;
         private Vector2 characterPosition;
@@ -26,6 +28,7 @@ namespace IslandsQuest.Models.EntityModels
         private KeyboardState previousKeyboardState;
         private HeroState characterState;
         private ICollection<Bullet> bullets;
+        private Vector2 boundOffset = new Vector2(25, 15);
         public int Score { get; set; }
 
         private int currentFrame;
@@ -43,6 +46,10 @@ namespace IslandsQuest.Models.EntityModels
 
         bool jumping;
         float startY, jumpspeed = 0;
+
+        //enemy not die when intersect logic
+        
+
 
         public ICollection<Bullet> Bullets { get { return this.bullets; } set { this.bullets = value; } }
         public Vector2 CharacterPosition { get { return this.characterPosition; } }
@@ -104,7 +111,7 @@ namespace IslandsQuest.Models.EntityModels
                 }
                 else
                 {
-                    if (keyboardState.IsKeyDown(Keys.Space))
+                    if (keyboardState.IsKeyDown(Keys.Up))
                     {
                         jumping = true;
                         jumpspeed = -34;//Give it upward thrust
@@ -112,7 +119,7 @@ namespace IslandsQuest.Models.EntityModels
                 }
 
                 //Shooting logic
-                if (keyboardState.IsKeyDown(Keys.C) && previousKeyboardState.IsKeyUp(Keys.C))
+                if (keyboardState.IsKeyDown(Keys.Space) && previousKeyboardState.IsKeyUp(Keys.Space))
                 {
                     BulletDirection bulletDirection;
                     if (characterState == HeroState.StandingLeft || characterState == HeroState.WalkingLeft)
@@ -124,7 +131,7 @@ namespace IslandsQuest.Models.EntityModels
                         bulletDirection = BulletDirection.Right;
                     }
 
-                    Bullet bullet = new Bullet(bulletTexture, characterPosition, 13f, 25, bulletDirection);
+                    Bullet bullet = new Bullet(bulletTexture, characterPosition, 13f, 8, bulletDirection);
 
                     bullets.Add(bullet);
                 }
@@ -139,7 +146,6 @@ namespace IslandsQuest.Models.EntityModels
             }
         }
 
-
         public void Draw(SpriteBatch spriteBatch)
         {
             var width = sprite.Width / Columns;
@@ -147,10 +153,10 @@ namespace IslandsQuest.Models.EntityModels
             int row = (int)((float)currentFrame / Columns);
             int column = currentFrame % Columns;
 
-            //var sourceRectangle = new Rectangle(width * column, height * row, width, height);
-            //var sourceRectangle = new Rectangle((int)this.CharacterPosition.X + Bounds.X, (int)this.characterPosition.Y + Bounds.Y, Bounds.Width, Bounds.Height);
-            //var destinationRectangle = new Rectangle((int)location.X, (int)location.Y, width, height);
-            this.Bounds = new Rectangle((int)characterPosition.X, (int)characterPosition.Y, width, height);
+            this.Bounds = new Rectangle((int)characterPosition.X+(int)boundOffset.X,
+                                            (int)characterPosition.Y+(int)boundOffset.Y, 
+                                            width-2*(int)boundOffset.X,
+                                            height-2*(int)boundOffset.Y);
 
             if (characterState == HeroState.StandingLeft)
             {
@@ -196,21 +202,45 @@ namespace IslandsQuest.Models.EntityModels
             }
         }
 
+        //??? Да се интерсектва с Object-и -> метода да върши работа за интерсектване с Enemy and Items
         public override void IntersectWithEnemies(IList<Enemy> enemies, int score)
         {
             for (int i = enemies.Count - 1; i >= 0; i--)
             {
-                if (this.Bounds.Intersects(enemies[i].Bounds))
+                if (this.Bounds.Intersects(enemies[i].Bounds) && !enemies[i].hasMadeDamage)
                 {
                     this.health -= enemies[i].Damage;
-                    enemies.RemoveAt(i);
+                    enemies[i].hasMadeDamage = true;
+                }
+                else if (!this.Bounds.Intersects(enemies[i].Bounds) && enemies[i].hasMadeDamage)
+                {
+                    enemies[i].hasMadeDamage = false;
                 }
             }
+        }
 
-            //foreach (var bullet in this.bullets)
-            //{
-            //    bullet.IntersectWithEnemies(enemies);
-            //}
+        public void IntersectWithPotions(List<Potion> potions, int health)
+        {
+            foreach (var potion in potions)
+            {
+                if (this.Bounds.Intersects(potion.Bounds))
+                {
+                    this.health += potion.HealthPoints;
+                    potion.IsActive = false;
+                }
+            }
+        }
+
+        public void IntersectWithGold(List<Gold> gold)
+        {
+            foreach (var oneGold in gold)
+            {
+                if (this.Bounds.Intersects(oneGold.Bounds))
+                {
+                    this.keys += 1;
+                    oneGold.IsActive = false;
+                }
+            }
         }
     }
 }

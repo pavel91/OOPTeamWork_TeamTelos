@@ -20,6 +20,10 @@ namespace IslandsQuest.Models.EntityModels
         public float XPosition { get; set; }
         public float YPosition { get; set; }
 
+        //not dissappearing logic
+        public bool walkingLeft = true;
+        public bool hasMadeDamage = false;
+
         public int Health { get; set; }
         public int Damage { get; set; }
 
@@ -41,11 +45,28 @@ namespace IslandsQuest.Models.EntityModels
             this.IsAlive = true;
         }
 
-
         public void Update()
         {
+            //not dissappearing logic
+            if (XPosition<1)
+            {
+                walkingLeft = false;
+            }
+            if (XPosition>800)
+            {
+                walkingLeft = true;
+            }
+            if (walkingLeft)
+            {
+                XPosition -= 1.5f;
+            }
+            else
+            {
+                XPosition += 1.5f;
+            }
+
             currentFrame++;
-            XPosition -= 1.5f;
+
             if (currentFrame == 16)
                 currentFrame = 8;
         }

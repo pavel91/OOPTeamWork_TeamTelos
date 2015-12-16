@@ -47,6 +47,8 @@
     <Compile Include="IslandsQuest.cs" />
     <Compile Include="Models\EntityModels\Character.cs" />
     <Compile Include="Models\EntityModels\Enemy.cs" />
+    <Compile Include="Models\EntityModels\Items\Key.cs" />
+    <Compile Include="Models\EntityModels\Items\Potion.cs" />
     <Compile Include="Models\Enums\BulletDirection.cs" />
     <Compile Include="Models\Enums\HeroState.cs" />
     <Compile Include="Program.cs" />

@@ -1,5 +1,4 @@
-﻿using IslandsQuest.Models.EntityModels;
-using Microsoft.Xna.Framework;
+﻿using IslandsQuest.Models.EntityModels.Enemies;
 using System.Collections.Generic;
 
 namespace IslandsQuest.Interfaces

@@ -1,24 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using IslandsQuest.Interfaces;
+using IslandsQuest.Models.Abstracts;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace IslandsQuest.Models.EntityModels
+namespace IslandsQuest.Models.EntityModels.Enemies
 {
-    public class Enemy
+    public class Enemy : GameObject, ICharacter, IDamage
     {
         private const int DefaultEnemyHealth = 75;
         private const int DefaultEnemyDamage = 15;
+        private const float DefaultEnemyVelocity = 2.5f;
 
-        public Texture2D Texture { get; set; }
-        public int Rows { get; set; }
-        public int Columns { get; set; }
+        //These two are used to cut the skeleton sprite
+        private const int DefaultImageSpriteRows = 8;
+        private const int DefaultImageSpriteColumns = 9;
+
+        //public Texture2D Texture { get; set; }
+
+        //public Rectangle Bounds { get; set; }
+
+        //public int Rows { get; set; }
+        //public int Columns { get; set; }
+
         private int currentFrame;
-        private int totalFrames;
-        public float XPosition { get; set; }
-        public float YPosition { get; set; }
+        //private int totalFrames;
+
+        //public float XPosition { get; set; }
+        //public float YPosition { get; set; }
 
         private int timeSinceLastFrame = 0;
         private int millisecondPerFrame = 50;
@@ -28,27 +36,30 @@ namespace IslandsQuest.Models.EntityModels
         public bool hasMadeDamage = false;
 
         public int Health { get; set; }
+
         public int Damage { get; set; }
 
         public bool IsAlive { get; set; }
 
-        public Rectangle Bounds { get; set; }
-
-        public Enemy(Texture2D texture, int rows, int columns)
+        public Enemy(Texture2D enemyImage, int xPos, int yPos, float velocity)
+            : base(enemyImage, xPos, yPos, DefaultEnemyVelocity)
         {
-            Texture = texture;
-            Rows = rows;
-            Columns = columns;
-            currentFrame = 0;
-            totalFrames = Rows * Columns;
-            XPosition = 900;
-            YPosition = 330;
+            this.Image = enemyImage;
+            //Rows = rows;
+            //Columns = columns;
+            //totalFrames = Rows * Columns;
+            //XPosition = 900;
+            //YPosition = 330;
+            //this.XPosition = xPos;
+            //this.YPosition = yPos;
+            //this.Velocity = velocity;
             this.Health = DefaultEnemyHealth;
             this.Damage = DefaultEnemyDamage;
             this.IsAlive = true;
+            currentFrame = 0;
         }
 
-        public void Update(GameTime gameTime)
+        public override void Update(GameTime gameTime)
         {
             timeSinceLastFrame += gameTime.ElapsedGameTime.Milliseconds;
             if (timeSinceLastFrame > millisecondPerFrame)
@@ -70,7 +81,10 @@ namespace IslandsQuest.Models.EntityModels
                     {
                         currentFrame = 19;
                     }
-                    XPosition -= 2.5f;
+
+                    //velocity - 2.5f
+                    //XPosition -= 2.5f;
+                    this.XPosition -= this.Velocity;
                 }
                 else
                 {
@@ -78,28 +92,31 @@ namespace IslandsQuest.Models.EntityModels
                     {
                         currentFrame = 56;
                     }
-                    XPosition += 2.5f;
+
+                    //velocity - 2.5f
+                    //XPosition += 2.5f;
+                    this.XPosition += this.Velocity;
                 }
 
                 currentFrame++;
                 timeSinceLastFrame -= millisecondPerFrame;
             }
-            
+
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch spriteBatch)
         {
-            int width = Texture.Width / Columns;
-            int height = Texture.Height / Rows;
-            int row = (int)((float)currentFrame / (float)Columns);
-            int column = currentFrame % Columns;
+            int width = this.Image.Width / DefaultImageSpriteColumns;
+            int height = this.Image.Height / DefaultImageSpriteRows;
+            int row = (int)((float)currentFrame / (float)DefaultImageSpriteColumns);
+            int column = currentFrame % DefaultImageSpriteColumns;
             Vector2 location = new Vector2(XPosition, YPosition);
 
             Rectangle sourceRectangle = new Rectangle(width * column, height * row, width, height);
             //Rectangle destinationRectangle = new Rectangle((int)location.X, (int)location.Y, width, height);
             this.Bounds = new Rectangle((int)location.X, (int)location.Y, width, height);
 
-            spriteBatch.Draw(Texture, this.Bounds, sourceRectangle, Color.White);
+            spriteBatch.Draw(this.Image, this.Bounds, sourceRectangle, Color.White);
 
         }
     }

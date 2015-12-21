@@ -9,6 +9,9 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using IslandsQuest.Models.EntityModels.Items;
+using IslandsQuest.Models.EntityModels.Bullets;
+using IslandsQuest.Models.EntityModels.Players;
+using IslandsQuest.Models.EntityModels.Enemies;
 
 namespace IslandsQuest
 {
@@ -24,7 +27,7 @@ namespace IslandsQuest
         TimeSpan previousSpawnTime;
         TimeSpan previousSpawnTimePotion;
         TimeSpan previousSpawnTimeGold;
-        
+
         IList<Enemy> enemies;
         List<Potion> potions;
         List<Gold> gold;
@@ -35,11 +38,11 @@ namespace IslandsQuest
         private Texture2D backgroundLevel0;
         private Texture2D backgroundLevel1;
         private Vector2 location;
-        
+
         private Enemy enemy;
         private Potion potion;
         private Gold oneGold;
-        
+
         private SpriteFont titleFont;
         private Level level;
 
@@ -69,7 +72,7 @@ namespace IslandsQuest
             previousSpawnTimePotion = TimeSpan.Zero;
             previousSpawnTimeGold = TimeSpan.Zero;
             enemySpawnTime = TimeSpan.FromSeconds(6.0f);
-            
+
             //da se iznesat
             giftSpawnTime = TimeSpan.FromSeconds(5.0f);
             goldSpawnTime = TimeSpan.FromSeconds(8.0f);
@@ -88,7 +91,7 @@ namespace IslandsQuest
             titleFont = Content.Load<SpriteFont>("title");
             bulletTexture = this.Content.Load<Texture2D>("Fireball");
 
-            character = new Character(sprite, location, bulletTexture);
+            character = new Character(sprite, location.X, location.Y, 8, bulletTexture);
 
             listener = new EventListener(character, this.level);
 
@@ -109,7 +112,7 @@ namespace IslandsQuest
             character.Update(gameTime);
             character.IntersectWithEnemies(enemies, this.character.Score);
 
-            character.IntersectWithPotions(potions, this.character.health);
+            character.IntersectWithPotions(potions, this.character.Health);
             character.IntersectWithGold(gold);
 
             //Check for collision and do damage
@@ -119,7 +122,7 @@ namespace IslandsQuest
                 enemies[i].Update(gameTime);
             }
             UpdateEnemies(gameTime);
-            
+
             //same logic for every Item
             List<Potion> аctivePotions = new List<Potion>();
             for (int i = 0; i < potions.Count; i++)
@@ -203,7 +206,7 @@ namespace IslandsQuest
                     //Draw background
                     spriteBatch.Draw(backgroundLevel1, new Rectangle(0, 0, 800, 480), Color.White);
 
-                    spriteBatch.DrawString(titleFont, string.Format("Health: {0}", this.character.health),
+                    spriteBatch.DrawString(titleFont, string.Format("Health: {0}", this.character.Health),
                         new Vector2(5, 5),
                         Color.White);
                     spriteBatch.DrawString(titleFont, string.Format("Score: {0}", this.character.Score),
@@ -239,16 +242,16 @@ namespace IslandsQuest
                     }
 
                     //draw potions
-            foreach (var item in potions)
-            {
-                item.Draw(spriteBatch);
-            }
+                    foreach (var item in potions)
+                    {
+                        item.Draw(spriteBatch);
+                    }
 
-            //draw gold
-            foreach (var item in gold)
-            {
-                item.Draw(spriteBatch);
-            }
+                    //draw gold
+                    foreach (var item in gold)
+                    {
+                        item.Draw(spriteBatch);
+                    }
                     //bullet.Draw(spriteBatch);
 
                 }
@@ -265,7 +268,8 @@ namespace IslandsQuest
                 previousSpawnTime = gameTime.TotalGameTime;
                 Texture2D texture = Content.Load<Texture2D>("skeleton");
 
-                enemy = new Enemy(texture, 8, 9);
+                //enemy = new Enemy(texture, 8, 9);
+                enemy = new Enemy(texture, 900, 330, 2.5f);
 
                 enemies.Add(enemy);
             }
@@ -297,17 +301,17 @@ namespace IslandsQuest
             MouseInput.LastMouseState = MouseInput.MouseState;
             MouseInput.MouseState = Mouse.GetState();
             Point mousePos = new Point(MouseInput.getMouseX(), MouseInput.getMouseY());
-            if (MouseInput.LastMouseState.LeftButton == ButtonState.Released && 
+            if (MouseInput.LastMouseState.LeftButton == ButtonState.Released &&
                 MouseInput.MouseState.LeftButton == ButtonState.Pressed &&
                 startArea.Contains(mousePos))
             {
-                level= Level.First;
+                level = Level.First;
             }
             if (MouseInput.LastMouseState.LeftButton == ButtonState.Released &&
                 MouseInput.MouseState.LeftButton == ButtonState.Pressed &&
                 creditsArea.Contains(mousePos))
             {
-                level=Level.Credits;
+                level = Level.Credits;
             }
             if (MouseInput.LastMouseState.LeftButton == ButtonState.Released &&
                 MouseInput.MouseState.LeftButton == ButtonState.Pressed &&

@@ -26,7 +26,6 @@
             }
         }
 
-        
         public static int getMouseX()
         {
             return Mouse.GetState().X;

@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using IslandsQuest.Models.EntityModels;
-using IslandsQuest.Models.Enums;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+﻿using IslandsQuest.Models.Enums;
+using IslandsQuest.Models.EntityModels.Players;
+using System;
 
 namespace IslandsQuest.Models.Core
 {
     public class EventListener
     {
         private Character Charachter;
-        
+
         public Level GameLevel { get; set; }
 
         public EventListener(Character character, Level level)

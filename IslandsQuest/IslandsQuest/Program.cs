@@ -1,4 +1,6 @@
-﻿using System;
+﻿using IslandsQuest.Exceptions;
+using System;
+using System.Windows.Forms;
 
 namespace IslandsQuest
 {
@@ -14,8 +16,21 @@ namespace IslandsQuest
         [STAThread]
         static void Main()
         {
-            using (var game = new IslandsQuest())
-                game.Run();
+            try
+            {
+                using (var game = new IslandsQuest())
+                {
+                    game.Run();
+                }
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
     }
 #endif

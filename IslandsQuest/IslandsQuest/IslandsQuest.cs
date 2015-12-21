@@ -83,13 +83,13 @@ namespace IslandsQuest
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            sprite = this.Content.Load<Texture2D>("transparentElf");
-            backgroundLevel0 = this.Content.Load<Texture2D>("level0_background");
-            button = this.Content.Load<Texture2D>("buttons_background");
-            backgroundLevel1 = this.Content.Load<Texture2D>("space_background");
+            sprite = this.Content.Load<Texture2D>("Images/transparentElf");
+            backgroundLevel0 = this.Content.Load<Texture2D>("Images/level0_background");
+            button = this.Content.Load<Texture2D>("Images/buttons_background");
+            backgroundLevel1 = this.Content.Load<Texture2D>("Images/space_background");
 
-            titleFont = Content.Load<SpriteFont>("title");
-            bulletTexture = this.Content.Load<Texture2D>("Fireball");
+            titleFont = Content.Load<SpriteFont>("Fonts/title");
+            bulletTexture = this.Content.Load<Texture2D>("Images/Fireball");
 
             character = new Character(sprite, location.X, location.Y, 8, bulletTexture);
 
@@ -266,7 +266,7 @@ namespace IslandsQuest
             if (gameTime.TotalGameTime - previousSpawnTime > enemySpawnTime)
             {
                 previousSpawnTime = gameTime.TotalGameTime;
-                Texture2D texture = Content.Load<Texture2D>("skeleton");
+                Texture2D texture = Content.Load<Texture2D>("Images/skeleton");
 
                 //enemy = new Enemy(texture, 8, 9);
                 enemy = new Enemy(texture, 900, 330, 2.5f);
@@ -277,7 +277,7 @@ namespace IslandsQuest
             if (gameTime.TotalGameTime - previousSpawnTimePotion > giftSpawnTime)
             {
                 previousSpawnTimePotion = gameTime.TotalGameTime;
-                Texture2D texture = Content.Load<Texture2D>("transparentItems");
+                Texture2D texture = Content.Load<Texture2D>("Images/transparentItems");
 
                 potion = new Potion(texture);
 
@@ -287,7 +287,7 @@ namespace IslandsQuest
             if (gameTime.TotalGameTime - previousSpawnTimeGold > goldSpawnTime)
             {
                 previousSpawnTimeGold = gameTime.TotalGameTime;
-                Texture2D texture = Content.Load<Texture2D>("transparentItems");
+                Texture2D texture = Content.Load<Texture2D>("Images/transparentItems");
 
                 oneGold = new Gold(texture);
 
